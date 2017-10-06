@@ -11,11 +11,21 @@ const app = express();
  * 
  * req = the object representing the incoming object. 
  * res = the outgoing response. (result)
- * res.send sends some JSON back to whoever made the request. 
+ * res.send sends some JSON back to whoever made the request.
+ * 
+ * //To deploy app to Heroku, commit code to git. Use commands:
+ * - Heroku Create
+ * - git remote add <name-of-app> <--.git link created by Heroku Create-->
+ * - git push <name-of-app> master
+ * - heroku open (opens the app in the browser if everything went right);
+ * 
+ * Heroku app: https://safe-citadel-50116.herokuapp.com/
+ * Heroku Git Deployment Repository: https://git.heroku.com/safe-citadel-50116.git
+ * 
  */
 app.get('/', (req, res) => {
     res.send({
-        hi: 'there'
+        bye: 'buddy'
     });
 });
 
