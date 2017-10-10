@@ -27,53 +27,48 @@
  * Heroku Git Deployment Repository: https://git.heroku.com/safe-citadel-50116.git
  * 
  * History:: app.get('/', (req, res) => { res.send({ bye: 'buddy'  });   });
- */
+ * Cookie-session = Lets us make use of Cookies inside of our app. Not available out of the box with Express.
+ * --We can assign some data to the cookie. Cookie middleware then takes the data out of the cookie and assigns it to req.session prop
+ * 
+ * After you create a database in mlab.com, set up an user(Administrator) who can access that. Then set up a project at 
+ * console.developers.google.com. Create a new API (Google+ for Oauth 2.0); Then create credentials - Oauth Client ID. 
+ * 
+ * Setting up config variables in Heroku: Go to Settings and then click Reveal Variables and then set it up. 
+*/
 
+require('./models/User');
+require('./services/passport');
 const express = require('express');
+//since we are not "returning" anything from passport.js, we just require it. 
+
+const mongoose = require('mongoose');
+const cookieSession = require('cookie-session');
 const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-//get the clientID and clientSecret of Google
 const keys = require('./config/keys');
+const authRoutes = require('./routes/authRoutes');
+
+mongoose.connect(keys.mongoURI);
 
 const app = express();
 
-/** Create new instance of GoogleStrategy and pass in config on how to authenticate users inside passport.
-* Passport.use == lets passport know which specific strategy to use.
-
-    The callbackURL is used to determine that when the user comes back, they are led to the success page. 
-*/
-passport.use(
-    new GoogleStrategy({
-        clientID: keys.googleClientID,
-        clientSecret: keys.googleClientSecret,
-        callbackURL: '/auth/google/callback'
-    },
-        (accessToken, refreshToken, profile, done) => {
-            console.log('access Token', accessToken);
-            console.log('refresh Token', refreshToken);
-            console.log('profile: ', profile);
-
-        }
-    )
+/**
+ * maxAge: How long we want our cookie to last inside of our session. Ex: 30 days. has to be in miliseconds. 
+ * key: key that will be used to encrypt our cookie. So that someone cant fake being someone else.
+ */
+app.use(
+    cookieSession({
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+        keys: [keys.cookieKey]
+    })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
-//Add route handler so the user can get directed to the google auth
-//Scope specified to google what access we want to have to the user's data. 
-//passport.authentication('name') is to help passport determine which strategy to use --> GoogleStrategy
-app.get('/auth/google', passport.authenticate('google', {
-    scope: ['profile', 'email']
-}));
-
-//get the code from the URL that gives us access to the user's data. 
-app.get('/auth/google/callback', passport.authenticate('google'));
+//When we require the authRoutes file, it returns a function (bc that's what we export from it) and then the parenthesis
+//invokes the function with app. 
+authRoutes(app);
 
 //Dynamically figure out what port to listen to. This is determined by Heroku and this statement help determine that. 
 //If there isn't an environment variable defined by heroku then use 5000. 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT);
-
-
-
-//https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_
-//uri=http%3A%2F%2Flocalhost%3A5000%2Fauth%2Fgoogle%2Fcallback&scope=profile%20email&
-//client_id=813533912632-b33a77favgi2jchls1dvafaedr2iti9j.apps.googleusercontent.com
