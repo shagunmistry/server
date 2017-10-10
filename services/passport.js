@@ -18,9 +18,9 @@ passport.serializeUser((user, done) => {
 /**
  * Reason: To turn a unique id into a user. Turn that cookie into information that we can use. 
  */
-passport.deserializeUser((id, done) =>{
+passport.deserializeUser((id, done) => {
     //Get the user and return his information. 
-    User.findById(id).then( user => {
+    User.findById(id).then(user => {
         done(null, user);
     });
 });
@@ -33,7 +33,10 @@ passport.use(
     new GoogleStrategy({
         clientID: keys.googleClientID,
         clientSecret: keys.googleClientSecret,
-        callbackURL: '/auth/google/callback'
+        //When we are in dev, use an exact URL with https, while we are in prod, use localhost. 
+        callbackURL: '/auth/google/callback',
+        //If the request runs through Proxy, trust it and let the callback url be HTTPS - basically. 
+        proxy: true
     },
         (accessToken, refreshToken, profile, done) => {
             //Check if a user already exists by comparing GoogleIds 
