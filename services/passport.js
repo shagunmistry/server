@@ -38,27 +38,24 @@ passport.use(
         //If the request runs through Proxy, trust it and let the callback url be HTTPS - basically. 
         proxy: true
     },
-        (accessToken, refreshToken, profile, done) => {
+        async (accessToken, refreshToken, profile, done) => {
             //Check if a user already exists by comparing GoogleIds 
-            User.findOne({ googleId: profile.id }).then((existingUser) => {
-                if (existingUser) {
-                    /**
-                     * if the user already exists with the given profile ID.
-                     * This tells passport that we have finished creating the user and the authentication process is done.
-                     * null tells that there's no err here. The second argument is the user record. This tells passport what 
-                     * user we found. 
-                     */
-                    done(null, existingUser);
-                } else {
-                    /**
-                     * We don't so create a new user. This creates a new model instance. 
-                     * the .save takes this record and saves it to the instance 
-                     */
-                    new User({ googleId: profile.id })
-                        .save()
-                        .then(user => done(null, user));
-                }
-            });
+            const existingUser = await User.findOne({ googleId: profile.id })
+            if (existingUser) {
+                /**
+                 * if the user already exists with the given profile ID.
+                 * This tells passport that we have finished creating the user and the authentication process is done.
+                 * null tells that there's no err here. The second argument is the user record. This tells passport what 
+                 * user we found. 
+                 */
+                return done(null, existingUser); //it will return this if there is an user and not anything after this. 
+            }
+            /**
+             * We don't so create a new user. This creates a new model instance. 
+             * the .save takes this record and saves it to the instance 
+             */
+            const user = await new User({ googleId: profile.id }).save()
+            done(null, user);
 
         }
     )

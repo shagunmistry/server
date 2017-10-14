@@ -1,0 +1,55 @@
+------------Section 6, Lecture 51-----------------------
+Running both the client and the server servers with a single command --- use the Concurrently module. 
+-npm install --save concurrently
+Add script: "client" : "npm run start -- prefix client" <--which has to run from within the client directory
+            "dev": "concurrently \"npm run server\" \"npm run client\"" 
+            --Take a look at the package.json scripts file of Server to understand more. 
+            
+Then in the Package.json for react side file, 
+add   "proxy": {
+    "/auth/google":{
+      "target": "http://localhost:5001"
+    }
+  },
+  under "private" . 
+  --We do this so that every link with "/auth/google" on the react server, will be prefixed by this. This makes 
+  the front-end and back-end work together nicely. 
+
+  //Write a function to retrieve a blob of json.
+  //Make an ajax request and use the 'fetch' function. (fetch api)
+  before we make an AJAX functin, we actually need a URL to make a request to.
+--Old Syntax---
+function fetchAlbums(){
+    fetch('https://rallycoding.herokuapp.com/api/music_albums')
+    .then( res => res.json())
+    .then(json => console.log(json));
+}
+
+fetchAlbums();
+
+--new syntax---
+async function fetchAlbums() {
+    const res = await fetch('https://rallycoding.herokuapp.com/api/music_albums')
+    const json = await res.json();
+    console.log(json);
+}
+fetchAlbums();
+--New Syntax---
+const fetchAlbums = async () => {
+    const res = await fetch('https://rallycoding.herokuapp.com/api/music_albums')
+    const json = await res.json();
+    console.log(json);
+}
+fetchAlbums();
+
+- Identify code that is asychronous request/operation. then put asyn in front of the function declration. 
+- Identify all the different promises created by that funciton 
+- In front of each of those promises, add "await"
+- Assign those to a const value.
+
+-----------------------
+the ReactJS file-naming convention: if the class is exporting a function, then it can start with lowercase. 
+If it's exporting a component, then it has to be Uppercase. 
+
+Axios: Helps us make API/Ajax requests to our backend API
+Redux Thunk: A middleware
