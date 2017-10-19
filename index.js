@@ -79,15 +79,16 @@ billingRoutes(app);
 
 //See if we are on heroku (so that express will server up React routes and production assets)
 //FOR Routes like /surveys (or any other route in React Router -- /client/src/index.js)
-if(process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === 'production') {
+    const path = require('path');
+
     //Make sure Express serves up production files like main.js or main.css if there are any incoming requests 
     //that Express does not understand and see if a file in here will match up w/ a request, if so send them there. 
-    app.use(express.static('client/build'));
+    app.use(express.static(path.join(__dirname, 'client/build')));
 
     //Make sure express will server up index.html file if it doesn't recognize the route bc we are 
     //assuming that the particular route is being handled by React Router. 
     //This is the final attempt at handling the request that couldn't be handled by previous attempts. 
-    const path = require('path');
     app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
     });
