@@ -10,7 +10,15 @@ module.exports = app => {
     }));
 
     //get the code from the URL that gives us access to the user's data. 
-    app.get('/auth/google/callback', passport.authenticate('google'));
+    app.get(
+        '/auth/google/callback',
+        passport.authenticate('google'),
+        //Where this request is sent to after the Passport Authenticate is executed.
+        (req, res) => {
+            //Whenever a request comes here, redirect the user (since's he's successfully been authenticated)
+            res.redirect('/surveys');
+        }
+    );
 
     //req = incoming res = outgoing response. 
     app.get('/api/cur_user', (req, res) => {
@@ -20,6 +28,7 @@ module.exports = app => {
     //to log out the user ..Passport automatically attached logout() to the req .
     app.get('/api/logout', (req, res) => {
         req.logout();
-        res.send(req.user);
+        res.redirect('/');
     });
+
 };

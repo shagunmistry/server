@@ -15,6 +15,8 @@ add   "proxy": {
   --We do this so that every link with "/auth/google" on the react server, will be prefixed by this. This makes 
   the front-end and back-end work together nicely. 
 
+- Middleware is a function that takes incoming request and adds the ability to modify inside of that middleware
+- run npm run build to produce a production file. 
   //Write a function to retrieve a blob of json.
   //Make an ajax request and use the 'fetch' function. (fetch api)
   before we make an AJAX functin, we actually need a URL to make a request to.
@@ -53,3 +55,11 @@ If it's exporting a component, then it has to be Uppercase.
 
 Axios: Helps us make API/Ajax requests to our backend API
 Redux Thunk: A middleware
+
+Installed body-parser to parse incoming request bodies in a middleware before your handlers, available under the req.body property. 
+--Does not handle multiple bodies     
+
+package.json
+"heroku-postBuild" -- this will be called automatically after server dependencies have installed. 
+ we are using it to tell heroku to install all npm modules. so that when we push it out to production, it will download
+ our client project's dependencies. And after all that is installed, tell it to build the client side project

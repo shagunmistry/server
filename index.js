@@ -45,11 +45,19 @@ const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
 const keys = require('./config/keys');
+const bodyParser = require('body-parser');
 const authRoutes = require('./routes/authRoutes');
+const billingRoutes = require('./routes/billingRoutes');
 
 mongoose.connect(keys.mongoURI);
 
 const app = express();
+
+/**
+ * Body-parser middleware wire-up
+ * Anytime a post-request or put/patch request comes into our app, the middleware will parse it and assign it to req.body
+ */
+app.use(bodyParser.json());
 
 /**
  * maxAge: How long we want our cookie to last inside of our session. Ex: 30 days. has to be in miliseconds. 
@@ -67,6 +75,25 @@ app.use(passport.session());
 //When we require the authRoutes file, it returns a function (bc that's what we export from it) and then the parenthesis
 //invokes the function with app. 
 authRoutes(app);
+billingRoutes(app);
+
+//See if we are on heroku (so that express will server up React routes and production assets)
+//FOR Routes like /surveys (or any other route in React Router -- /client/src/index.js)
+if(process.env.NODE_ENV === 'production'){
+    //Make sure Express serves up production files like main.js or main.css if there are any incoming requests 
+    //that Express does not understand and see if a file in here will match up w/ a request, if so send them there. 
+    app.use(express.static('client/build'));
+
+    //Make sure express will server up index.html file if it doesn't recognize the route bc we are 
+    //assuming that the particular route is being handled by React Router. 
+    //This is the final attempt at handling the request that couldn't be handled by previous attempts. 
+    const path = require('path');
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+
+
+}
 
 //Dynamically figure out what port to listen to. This is determined by Heroku and this statement help determine that. 
 //If there isn't an environment variable defined by heroku then use 5000. 

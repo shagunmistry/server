@@ -1,8 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+//A new mongoose model
+//you can assign the type of field it is or what the default value is. 
 const userSchema = new Schema({
-    googleId: String
+    googleId: String,
+    credits: { type: Number, default: 0 }
 });
 
 
